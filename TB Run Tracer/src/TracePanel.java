@@ -25,7 +25,7 @@ public class TracePanel extends JPanel{
 	
 	public TracePanel(){
 		this.scale = 1;
-		setPreferredSize(new Dimension(1024, 300));
+		setPreferredSize(new Dimension(1800, 500));
 		
 		this.addMouseWheelListener(new MouseAdapter(){
 			public void mouseWheelMoved(MouseWheelEvent e){
