@@ -8,7 +8,7 @@ public class RunTracer {
 		frame.setTitle("Title");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		JScrollPane p = new JScrollPane(new RunModel(null, frame), JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane p = new JScrollPane(new RunModel(null), JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		frame.add(p);
 
 		frame.pack();

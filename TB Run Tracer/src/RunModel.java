@@ -8,9 +8,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
+
+import org.jLOAF.casebase.Case;
 import org.jLOAF.casebase.CaseRun;
 
 
@@ -20,27 +22,33 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private CaseRun run;
+	protected CaseRun run;
 	
-	private boolean isEntered;
+	protected boolean isEntered;
 	
-	private double index;
+	protected double index;
 	
-	private CustomDialog d;
+	protected CustomDialog d;
 	
-	public RunModel(CaseRun r, JFrame frame){
+	public RunModel(CaseRun r){
 		setPreferredSize(new Dimension(30 + 30 * getRunSize() + 30, 50));
 		this.isEntered = false;
 		
 		this.index = -1;
 		
-		d = new CustomDialog();
-		d.pack();
+		this.d = createDialog();
 		this.add(d);
 		
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 	}
+	
+	protected CustomDialog createDialog(){
+		CustomDialog d = new CustomDialog();
+		d.pack();
+		return d;
+	}
+	
 	@Override
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
@@ -72,7 +80,6 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 		}
 	}
 
-	@Override
 	public void mouseMoved(MouseEvent arg0) {
 		index = -1;
 		if (this.isEntered){
@@ -115,40 +122,49 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 			l = new JLabel("Hello World");
 			this.add(l);
 			this.setSize(200, 200);
+			this.setResizable(false);
+			
+			BasicInternalFrameUI f = (BasicInternalFrameUI) this.getUI();
+			f.setNorthPane(null);
 		}
 		
 		public void setText(String text){
 			this.l.setText(text);
 		}
+		
+		public void setText(Case c){
+			if (c == null){
+				return;
+			}
+		}
 	}
 	
-	@Override
 	public void mouseDragged(MouseEvent arg0) {
 		
 	}
 	
-	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		
 	}
-	@Override
 	public void mouseEntered(MouseEvent e) {
 		this.isEntered = true;
 	}
-	@Override
 	public void mouseExited(MouseEvent e) {
 		this.isEntered = false;
 		repaint();
 	}
-	@Override
 	public void mousePressed(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1 && index != -1){
+			Case c = null;
+			if (this.run != null){
+				c = this.run.getCase((int) Math.floor(index));
+			}
+			d.setText(c);
 			d.setLocation(e.getX(), e.getY());
 			d.setVisible(true);
 			repaint();
 		}
 	}
-	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1 && index != -1){
 			d.setVisible(false);
