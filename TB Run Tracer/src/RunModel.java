@@ -10,10 +10,12 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 import org.jLOAF.casebase.Case;
 import org.jLOAF.casebase.CaseRun;
+import org.json.JSONObject;
 
 
 public class RunModel extends JDesktopPane implements MouseMotionListener, MouseListener{
@@ -31,9 +33,10 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 	protected CustomDialog d;
 	
 	public RunModel(CaseRun r){
+		this.run = r;
+		
 		setPreferredSize(new Dimension(30 + 30 * getRunSize() + 30, 50));
 		this.isEntered = false;
-		
 		this.index = -1;
 		
 		this.d = createDialog();
@@ -60,7 +63,10 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 	}
 
 	private int getRunSize(){
-		return 1000;
+		if (run != null){
+			return run.getRunLength();
+		}
+		return -1;
 	}
 	
 	private void draw(Graphics2D g2, float yOffset){
@@ -115,11 +121,12 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private JLabel l;
+		private JTextArea l;
 		
 		public CustomDialog(){
 			super("Hello World");
-			l = new JLabel("Hello World");
+			l = new JTextArea("Hello World");
+			l.setEditable(false);
 			this.add(l);
 			this.setSize(200, 200);
 			this.setResizable(false);
@@ -136,6 +143,12 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 			if (c == null){
 				return;
 			}
+			JSONObject o = c.exportCaseToJSON();
+			String text = "Case : " + o.getInt("Index") + "\n";
+			
+			text += c.toString();
+			this.setText(text);		
+			this.pack();
 		}
 	}
 	

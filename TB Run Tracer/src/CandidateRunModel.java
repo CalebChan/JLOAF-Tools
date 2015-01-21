@@ -2,6 +2,7 @@ import java.util.ArrayList;
 
 import org.jLOAF.casebase.Case;
 import org.jLOAF.casebase.CaseRun;
+import org.json.JSONObject;
 
 
 public class CandidateRunModel extends RunModel{
@@ -29,7 +30,7 @@ public class CandidateRunModel extends RunModel{
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		public void setText(Case c){
+		public void setText(Case c, JSONObject extra){
 			super.setText(c);
 			
 			// Add stuff on top
