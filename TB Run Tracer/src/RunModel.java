@@ -135,6 +135,10 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 			f.setNorthPane(null);
 		}
 		
+		protected String getText(){
+			return this.l.getText();
+		}
+		
 		public void setText(String text){
 			this.l.setText(text);
 		}

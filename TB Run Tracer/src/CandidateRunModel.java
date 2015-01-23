@@ -32,6 +32,7 @@ public class CandidateRunModel extends RunModel{
 		
 		public void setText(Case c, JSONObject extra){
 			super.setText(c);
+			String s = this.getText() + "\n";
 			
 			// Add stuff on top
 		}
