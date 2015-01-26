@@ -9,7 +9,6 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
@@ -32,15 +31,16 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 	
 	protected CustomDialog d;
 	
-	public RunModel(CaseRun r){
+	public RunModel(CaseRun r, JDesktopPane parent){
 		this.run = r;
 		
-		setPreferredSize(new Dimension(30 + 30 * getRunSize() + 30, 50));
+		//setPreferredSize(new Dimension(30 + 30 * getRunSize() + 30, 50));
+		setPreferredSize(new Dimension(30 + 30 * 1000 + 30, 100));
 		this.isEntered = false;
 		this.index = -1;
 		
 		this.d = createDialog();
-		this.add(d);
+		parent.add(d);
 		
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
@@ -69,7 +69,7 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 		return -1;
 	}
 	
-	private void draw(Graphics2D g2, float yOffset){
+	protected void draw(Graphics2D g2, float yOffset){
 		for (int i = 0; i < getRunSize(); i++){
 			g2.setColor(Color.BLACK);
 			if (index == i){
@@ -128,7 +128,7 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 			l = new JTextArea("Hello World");
 			l.setEditable(false);
 			this.add(l);
-			this.setSize(200, 200);
+			this.setSize(200, 400);
 			this.setResizable(false);
 			
 			BasicInternalFrameUI f = (BasicInternalFrameUI) this.getUI();
@@ -141,6 +141,7 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 		
 		public void setText(String text){
 			this.l.setText(text);
+			this.pack();
 		}
 		
 		public void setText(Case c){
@@ -148,11 +149,13 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 				return;
 			}
 			JSONObject o = c.exportCaseToJSON();
-			String text = "Case : " + o.getInt("Index") + "\n";
-			
-			text += c.toString();
+			String text = "Case : " + o.getInt("Index") + " Run No : " + c.getParentCaseRun().getRunName() + "\n";
+			if (index == Math.floor(index)){
+				text += c.getInput().toString();
+			}else{
+				text += c.getAction().toString();
+			}
 			this.setText(text);		
-			this.pack();
 		}
 	}
 	
