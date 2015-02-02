@@ -92,7 +92,7 @@ public class RunTracer {
 			JSONObject oo = new JSONObject(r.readLine());
 			HashMap<String, CandidateRunModel> models = new HashMap<String, CandidateRunModel>();
 			for (CaseRun cr : cb.convertCaseBaseToRuns()){
-				CandidateRunModel m = new CandidateRunModel(cr, p);
+				CandidateRunModel m = new CandidateRunModel(cr, p, cb);
 				runModel.add(m);
 				models.put(cr.getRunName(), m);
 			}
@@ -100,17 +100,18 @@ public class RunTracer {
 			f.addKeyListener(new KA(runModel, f));
 			
 			for (String s : JSONObject.getNames(oo)){
-				//System.out.println("Names : " + s);
-				JSONArray a = oo.getJSONObject(s).getJSONArray("History");
-				for (int i = 0; i < a.length(); i++){
-					String name = a.getJSONObject(i).getString("Name");
-					if (name.equals("Current Run")){
+//				System.out.println("Names : " + s);
+				JSONArray history = oo.getJSONObject(s).getJSONArray("History");
+				for (int i = 0; i < history.length(); i++){
+					String candidiateName = history.getJSONObject(i).getString("Name");
+					if (candidiateName.equals("Current Run")){
+						System.out.println("Current Run at : " + s + " i : " + i);
 						continue;
 					}
 					try{
-						models.get(name).addHistory(s, a.getJSONObject(i));
+						models.get(candidiateName).addHistory(s, history.getJSONObject(i));
 					}catch(NullPointerException e){
-						System.out.println("Error : " + name + " " + a.getJSONObject(i).toString());
+						System.out.println("Error : " + candidiateName + " " + history.getJSONObject(i).toString());
 					}
 				}
 			}

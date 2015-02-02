@@ -14,7 +14,6 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 import org.jLOAF.casebase.Case;
 import org.jLOAF.casebase.CaseRun;
-import org.json.JSONObject;
 
 
 public class RunModel extends JDesktopPane implements MouseMotionListener, MouseListener{
@@ -124,8 +123,8 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 		private JTextArea l;
 		
 		public CustomDialog(){
-			super("Hello World");
-			l = new JTextArea("Hello World");
+			super("");
+			l = new JTextArea("");
 			l.setEditable(false);
 			this.add(l);
 			this.setSize(200, 400);
@@ -148,8 +147,7 @@ public class RunModel extends JDesktopPane implements MouseMotionListener, Mouse
 			if (c == null){
 				return;
 			}
-			JSONObject o = c.exportCaseToJSON();
-			String text = "Case : " + o.getInt("Index") + " Run No : " + c.getParentCaseRun().getRunName() + "\n";
+			String text = "Case : " + c.caseIndex() + " Run No : " + c.getParentCaseRun().getRunName() + "\n";
 			if (index == Math.floor(index)){
 				text += c.getInput().toString();
 			}else{
