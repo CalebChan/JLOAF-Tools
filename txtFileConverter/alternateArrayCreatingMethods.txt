@@ -1,0 +1,221 @@
+public String[][] arrayCreator() throws IOException {
+		int totalNumRows = (rowHeaders.size()+1)*rowReasoningMethods.size()*rowIterations.size() + rowReasoningMethods.size() + rowIterations.size() + 1;
+		System.out.println(totalNumRows);
+		String[][] fileText = new String[totalNumRows][colHeaders.size()+1];
+		System.out.println(fileText[0].length);
+		fileText[0][0] = "Weight Function";
+		for(int h = 1; h <= colHeaders.size(); h++){
+			fileText[0][h] = colHeaders.get(h-1);
+
+		}
+		int currentRow = 1;
+		for(String r:rowReasoningMethods){
+			fileText[currentRow][0] = "Reasoning Method";
+			fileText[currentRow][1] = r;
+			currentRow++;
+			for(String k:rowIterations){
+				fileText[currentRow][0] = "Random, k";
+				for(int k1 = 1; k1 < colHeaders.size(); k1++){
+					fileText[currentRow][k1] = k;
+				}
+				currentRow++;
+				for(String s:rowHeaders){
+					fileText[currentRow][0] = s;
+					currentRow++;
+				}
+				currentRow++;
+			}
+		}
+	
+		for(int j = 0; j < fileText.length; j ++){
+			for(int u = 0; u < fileText[0].length; u ++){
+				System.out.print(fileText[j][u] + tileSeperator);
+			}
+			System.out.println();
+		}
+		System.out.println("\n");
+		int currentCol = 0;
+		int currentReasoning = 1;
+		String currentRand = null;
+		currentRow = 0;
+		
+		System.out.println("\n\n\n"+rowHeaders.size()+"\n\n\n");
+		
+		BufferedReader txtFile = new BufferedReader(new FileReader(fileLocation));		
+		String line = txtFile.readLine();
+		while(line != null){
+			System.out.println("Beginning Row; " + currentRow);
+			System.out.println(line);
+			if(line.split(":")[0].equals("Weight Function ") == true){		
+				currentCol = colHeaders.indexOf(line.split(":")[1]) + 1;
+				if(colHeaders.indexOf(line.split(":")[1]) !=0){
+//					currentRow = (currentReasoning) * (rowHeaders.size() + 2) + 2;
+					currentRow = currentRow - rowHeaders.size();
+					
+				}
+				currentRow--;
+			}
+			else if(line.split(":")[0].equals("Reasoning Method ") == true){
+				currentReasoning = rowReasoningMethods.indexOf(line.split(":")[1]);
+				currentRow = (currentReasoning) * (rowHeaders.size() + 2) + 2;
+				currentRand = null;
+			}
+			else if(line.split(":")[0].equals("Random, k ") == true){
+				
+				if(currentRand == null){
+					currentRand = line.split(":")[1];
+				}
+				else if(currentRand != line.split(":")[1]){
+					currentRand = line.split(":")[1];
+					currentRow--;
+//					currentRow = currentRow - rowHeaders.size();
+//					System.out.println(currentReasoning + " - " + rowHeaders.size() + " = " + (currentReasoning - rowHeaders.size()));
+				}
+				
+			}		
+			else if(line.isEmpty() == false){
+				System.out.println("Text being entered on line: " + currentRow);
+				
+				fileText[currentRow-1][currentCol] = line.split(":")[1];	
+			}
+			else {
+				currentRow++;
+			}
+			currentRow++;
+			line = txtFile.readLine();
+			System.out.println("Ending Row; " + currentRow + "\n");
+		}
+
+		for(int j = 0; j < fileText.length; j ++){
+			for(int u = 0; u < fileText[0].length; u ++){
+				System.out.print(fileText[j][u] + ", ");
+			}
+			System.out.println();
+		}
+
+		
+		
+		return fileText;
+	}
+	
+	public String[][][][] arrayCreator4x4() throws IOException {
+		int totalNumRows = (rowHeaders.size()+1)*rowReasoningMethods.size()*rowIterations.size() + rowReasoningMethods.size() + rowIterations.size() + 1;
+		System.out.println(totalNumRows);
+		
+		String[][][][] fileText = new String[rowReasoningMethods.size()+1][colHeaders.size()+1][rowIterations.size()][rowHeaders.size()];
+		System.out.println(fileText[0].length);
+		fileText[0][0][0][0] = "Weight Function";
+		for(int h = 1; h <= colHeaders.size(); h++){
+			fileText[0][h][0][0] = colHeaders.get(h-1);
+
+		}
+		
+		for(int r = 0; r < rowReasoningMethods.size(); r ++){
+			fileText[r+1][0][0][0] = rowReasoningMethods.get(r);
+			for(int k = 0; k < rowIterations.size(); k ++){
+			}
+		}
+		for(int j = 0; j < fileText.length; j ++){
+			for(int u = 0; u < fileText[0].length; u ++){
+				for(int x = 0; x < fileText[0].length; x ++){
+					System.out.print(fileText[j][u][x][0] + ", ");
+				}
+			}
+			System.out.println();
+		}
+		
+		return fileText;
+	}
+	
+	public void otherArrayCreator(){
+		int totalNumRows = (rowHeaders.size()-2)*rowReasoningMethods.size()*rowIterations.size() + rowReasoningMethods.size() + rowIterations.size();
+		fileItems = new String[totalNumRows];
+//		System.out.println(rowHeaders.size());
+//		System.out.println(rowReasoningMethods.size());
+//		System.out.println(rowIterations.size());
+//		System.out.println(totalNumRows);
+		
+		fileItems[0] = "Weight Functions " + tileSeperator;
+		for(int i = 0; i < colHeaders.size(); i++){
+			fileItems[0] = fileItems[0] + colHeaders.get(i) + tileSeperator;
+		}
+		int rowNum = 1;
+		for(String r : rowReasoningMethods){
+			fileItems[rowNum] = "Reasoning Method";
+			rowNum++;
+			for(String iter: rowIterations){
+				
+			}
+		}
+	}
+	
+	public void otherArrayCreator2() throws IOException {
+		allItems = new String[colHeaders.size()][rowReasoningMethods.size()][rowIterations.size()][rowHeaders.size()-3];
+		
+		int currentCol = 0;
+		int currentReasoning = 0;
+		int currentIter = 0;
+		int simNum = 0;
+		int total = 1;
+		BufferedReader txtFile = new BufferedReader(new FileReader("testDoc1.txt"));
+		String line = txtFile.readLine();
+		while(line != null){
+			if((line.split(":")[0]).equals("Weight Function ") == true){
+				currentCol = colHeaders.indexOf(line.split(":")[1]);
+				simNum = 0;
+			}
+			else if((line.split(":")[0]).equals("Reasoning Method ") == true){
+				currentReasoning = rowReasoningMethods.indexOf(line.split(":")[1]);
+				simNum = 0;
+			}
+			else if((line.split(":")[0]).equals("Random, k ") == true){
+				currentIter = rowIterations.indexOf(line.split(":")[1]);
+				simNum = 0;
+			}
+			else if(line.isEmpty() == false){	
+				allItems[currentCol][currentReasoning][currentIter][simNum] = line.split(":")[1];
+				simNum++;
+			}
+			
+			line = txtFile.readLine();
+			total++;
+		}
+		
+		for(int c = 0; c < colHeaders.size(); c++){
+			for(int d = 0; d < rowReasoningMethods.size(); d++){
+				for(int e = 0; e < rowIterations.size(); e++){
+					for(int f = 0; f < rowHeaders.size()-3; f++){
+//						System.out.println(allItems[c][d][e][f]);
+					}
+				}
+			}
+		}
+
+		int totalRows = (rowHeaders.size()-2)*rowReasoningMethods.size()*rowIterations.size() + rowReasoningMethods.size() + rowIterations.size();	
+		fileText = new String[totalRows];
+		fileText[0] = "Weight Function ;";
+		for(int k = 1; k < colHeaders.size(); k++){
+			fileText[0] = fileText[0] + colHeaders.get(k) + tileSeperator;
+		}
+
+		int currentRow=1;
+		for(int d = 0; d < rowReasoningMethods.size(); d++){
+			fileText[currentRow] = "Reasoning Method ;" + rowReasoningMethods.get(d);
+			for(int e = 0; e < rowIterations.size(); e++){
+				fileText[currentRow] = "Random, k ;";
+				for(int f = 0; f < rowHeaders.size()-3; f++){
+					fileText[currentRow] = fileText[currentRow] + rowIterations.get(e);
+				}
+				for(int g = 0; g < rowHeaders.size()-3; g++){
+						fileText[currentRow] = fileText[currentRow] + rowIterations.get(e);
+					
+					for(int i = 0; i < rowHeaders.size()-3; i++){
+						currentRow++;
+					}
+				}
+				currentRow++;
+				currentRow++;
+			}
+			currentRow++;
+		}
+	}

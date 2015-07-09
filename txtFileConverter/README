@@ -1,0 +1,25 @@
+READ ME file for program txtFileConverter:
+
+Requirements for use:
+
+This program is capable of taking certain .txt files and converting them into .csv files. The .txt files that is entered must be in the following format.
+
+
+"Reasoning Method : ", Reasoning_Methods ;
+("Random, k : " | "NonRandom, k : "), digits," Iter ",digits ;
+"Weight Function : ", Weight_Function, "-", digits, ".", digits, ["-", digit, ".", digit] ;
+{	
+	line : Agent_Type, SPACE ,Record_Type, " : " decimal number ;
+}
+
+Reasoning_Methods : "SEQ" | "KNN" | "BEST" ;
+Agent_Type : "Smart Random Simulation" | "Straight Line Simulation" | "Zig Zag Simulation" | "Fixed Sequence Simulation" | "Smart Explorer Simulation" ;
+Record_Type : "Expected Actions" | "Matrix Total" | "Matrix Accuracy" | "Global F1" ;
+Weight_Function: "DecayWeightFunction" | "FixedWeightFunction" | "GaussianWeightFunction" | "LinearWeightFunction" ;
+
+
+
+
+Using the program:
+
+When using the program, a window will appear prompting the user to select a .txt file from their directory. After selecting the file, the user will be prompted to enter the name of .csv file that will be created as well as selecting the file's save location.. When entering the file names, the file-type must explicitly be included (i.e. the user must include .csv at the end of the file name).

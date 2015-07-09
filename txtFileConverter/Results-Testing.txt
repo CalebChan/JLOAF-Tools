@@ -1,0 +1,76 @@
+Reasoning Method : KNN
+Random, k : 4 Iter 1
+Weight Function : DecayWeightFunction-1.0
+Smart Random Simulation Average Accuracy : 0.3604285717010498
+Smart Random Simulation Expected Actions : 4
+Smart Random Simulation MOVE_DOWN Percision : 0.3401701
+Smart Random Simulation MOVE_DOWN Recall : 0.36776635
+Smart Random Simulation MOVE_DOWN F1 : 0.3534304
+Smart Random Simulation MOVE_UP Percision : 0.3850676
+Smart Random Simulation MOVE_UP Recall : 0.35675383
+Smart Random Simulation MOVE_UP F1 : 0.3703704
+Smart Random Simulation MOVE_LEFT Percision : 0.34579945
+Smart Random Simulation MOVE_LEFT Recall : 0.38737097
+Smart Random Simulation MOVE_LEFT F1 : 0.36540663
+Smart Random Simulation MOVE_RIGHT Percision : 0.37800688
+Smart Random Simulation MOVE_RIGHT Recall : 0.3297362
+Smart Random Simulation MOVE_RIGHT F1 : 0.35222542
+Smart Random Simulation Matrix Accuracy : 0.36042857
+Smart Random Simulation Global F1 : 0.3603582
+Random, k : 4 Iter 1
+Weight Function : FixedWeightFunction-1.0
+Smart Random Simulation Average Accuracy : 0.3604285717010498
+Smart Random Simulation Expected Actions : 4
+Smart Random Simulation MOVE_DOWN Percision : 0.3401701
+Smart Random Simulation MOVE_DOWN Recall : 0.36776635
+Smart Random Simulation MOVE_DOWN F1 : 0.3534304
+Smart Random Simulation MOVE_UP Percision : 0.3850676
+Smart Random Simulation MOVE_UP Recall : 0.35675383
+Smart Random Simulation MOVE_UP F1 : 0.3703704
+Smart Random Simulation MOVE_LEFT Percision : 0.34579945
+Smart Random Simulation MOVE_LEFT Recall : 0.38737097
+Smart Random Simulation MOVE_LEFT F1 : 0.36540663
+Smart Random Simulation MOVE_RIGHT Percision : 0.37800688
+Smart Random Simulation MOVE_RIGHT Recall : 0.3297362
+Smart Random Simulation MOVE_RIGHT F1 : 0.35222542
+Smart Random Simulation Matrix Accuracy : 0.36042857
+Smart Random Simulation Global F1 : 0.3603582
+
+Random, k : 4 Iter 2
+Weight Function : DecayWeightFunction-1.0
+Smart Random Simulation Average Accuracy : 0.3604285717010498
+Smart Random Simulation Expected Actions : 4
+Smart Random Simulation MOVE_DOWN Percision : 0.3401701
+Smart Random Simulation MOVE_DOWN Recall : 0.36776635
+Smart Random Simulation MOVE_DOWN F1 : 0.3534304
+Smart Random Simulation MOVE_UP Percision : 0.3850676
+Smart Random Simulation MOVE_UP Recall : 0.35675383
+Smart Random Simulation MOVE_UP F1 : 0.3703704
+Smart Random Simulation MOVE_LEFT Percision : 0.34579945
+Smart Random Simulation MOVE_LEFT Recall : 0.38737097
+Smart Random Simulation MOVE_LEFT F1 : 0.36540663
+Smart Random Simulation MOVE_RIGHT Percision : 0.37800688
+Smart Random Simulation MOVE_RIGHT Recall : 0.3297362
+Smart Random Simulation MOVE_RIGHT F1 : 0.35222542
+Smart Random Simulation Matrix Accuracy : 0.36042857
+Smart Random Simulation Global F1 : 0.3603582
+Random, k : 4 Iter 2
+Weight Function : FixedWeightFunction-1.0
+Smart Random Simulation Average Accuracy : 0.3604285717010498
+Smart Random Simulation Expected Actions : 4
+Smart Random Simulation MOVE_DOWN Percision : 0.3401701
+Smart Random Simulation MOVE_DOWN Recall : 0.36776635
+Smart Random Simulation MOVE_DOWN F1 : 0.3534304
+Smart Random Simulation MOVE_UP Percision : 0.3850676
+Smart Random Simulation MOVE_UP Recall : 0.35675383
+Smart Random Simulation MOVE_UP F1 : 0.3703704
+Smart Random Simulation MOVE_LEFT Percision : 0.34579945
+Smart Random Simulation MOVE_LEFT Recall : 0.38737097
+Smart Random Simulation MOVE_LEFT F1 : 0.36540663
+Smart Random Simulation MOVE_RIGHT Percision : 0.37800688
+Smart Random Simulation MOVE_RIGHT Recall : 0.3297362
+Smart Random Simulation MOVE_RIGHT F1 : 0.35222542
+Smart Random Simulation Matrix Accuracy : 0.36042857
+Smart Random Simulation Global F1 : 0.3603582
+
+

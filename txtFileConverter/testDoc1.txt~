@@ -1,0 +1,32 @@
+Reasoning Method : KNN
+Random, k : 4 Iter 1
+Weight Function : FixedWeightFunction-1.0
+Smart Random Simulation Expected Actions : 4
+Smart Random Simulation Matrix Total : 7000
+Smart Random Simulation Matrix Accuracy : 0.36014286
+Random, k : 4 Iter 1
+Weight Function : LinearWeightFunction-0.5
+Smart Random Simulation Expected Actions : 4
+Smart Random Simulation Matrix Total : 7000
+Smart Random Simulation Matrix Accuracy : 0.34985715
+Random, k : 4 Iter 1
+Weight Function : LinearWeightFunction-0.1
+Smart Random Simulation Expected Actions : 4
+Smart Random Simulation Matrix Total : 7000
+Smart Random Simulation Matrix Accuracy : 0.35214287
+
+Random, k : 4 Iter 4
+Weight Function : FixedWeightFunction-1.0
+Smart Random Simulation Expected Actions : 4
+Smart Random Simulation Matrix Total : 7000
+Smart Random Simulation Matrix Accuracy : 0.35285714
+Random, k : 4 Iter 4
+Weight Function : LinearWeightFunction-0.5
+Smart Random Simulation Expected Actions : 4
+Smart Random Simulation Matrix Total : 7000
+Smart Random Simulation Matrix Accuracy : 0.3577143
+Random, k : 4 Iter 4
+Weight Function : LinearWeightFunction-0.1
+Smart Random Simulation Expected Actions : 4
+Smart Random Simulation Matrix Total : 7000
+Smart Random Simulation Matrix Accuracy : 0.34285715

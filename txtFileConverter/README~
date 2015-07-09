@@ -1,0 +1,33 @@
+READ ME file for program txtFileConverter:
+
+Requirements for use:
+
+This program is capable of taking certain .txt files and converting them into .csv files. The .txt files that is entered must be in a certain format. The .txt file entered must be:
+
+
+Reasoning Method : "A"
+Random, k : "1"* Iter "1"*
+Weight Function : "T"*
+("x number of simulators"* : "simulator value")
+Random, k : "1"* Iter "2"*
+Weight Function : 
+("x number of simulators"* : "simulator value")
+
+Reasoning Method : "B"
+Random, k : "1"* Iter "1"*
+Weight Function : "T"*
+("x number of simulators"* : "simulator value")
+Random, k : "1"* Iter "2"*
+Weight Function : 
+("x number of simulators"* : "simulator value")
+
+"Repeat for all other Reasoning Types"
+
+
+The above format must be followed in order for the program to work. All text that is not in quotations must be written in the exact way shown, including uppercase/lowercase as well as spaces. All values in quotations may be interchangeable. The value "Random, k " can be also be "Non Random, k " if need be. There can be any number of simulators, however there must be the same amount for each of the Weight Functions and k-types. If an asterisk follows any of the quoted text are values that must be repeated for each of the Reasoning Methods. For example, if Reasoning Method A has 6 different type of k's repeated 3 times each under 4 different Weight Functions (all Non Random), Reasoning Method B must also have the same configurations (must also be Non Random).
+
+
+
+Using the program:
+
+When using the program, a window will appear prompting the user to enter the .txt file (along with location).If the program can successfully find the file, the user will be prompted to enter the name of .csv file that will be created (along with where the file should be saved). If the user uses the .txt file that was used as the name or leaves the text box blank, the program will create the .csv file as "New File.csv" in the same directory as the program. When entering the file names, the file type must explicitly be included (i.e. when searching for the .txt file, the user must enter: "home/admin/Documents/file.txt". When entering the location and name of the csv file, the user must enter: "home/admin/Document/newFile.csv"). If the .txt file is in the incorrect format (see the regulations listed above) or if an incorrect file path is given, the program will alert the user.
