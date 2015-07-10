@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.awt.event.*;
 
 
+@SuppressWarnings("serial")
 public class txtFileConverter extends JFrame implements ActionListener{
 	/**
 	 * @param args
@@ -321,7 +322,7 @@ public class txtFileConverter extends JFrame implements ActionListener{
 		if(arg0.getSource() == start){
 			try{
 				fileChooser = new JFileChooser();
-				int returnVal = fileChooser.showOpenDialog(this);
+				fileChooser.showOpenDialog(this);
 				fileLocation = fileChooser.getSelectedFile().toString() + "/";
 
 				BufferedReader txtFile = new BufferedReader(new FileReader(fileLocation));	//only present to test whether the user-inputed file can be read or not
@@ -348,7 +349,7 @@ public class txtFileConverter extends JFrame implements ActionListener{
 			try{
 				fileChooser = new JFileChooser();
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				int returnVal = fileChooser.showOpenDialog(this);
+				fileChooser.showOpenDialog(this);
 				fileDirectory = fileChooser.getSelectedFile().toString() + "/";
 
 				
