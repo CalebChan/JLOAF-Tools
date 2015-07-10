@@ -8,6 +8,7 @@ import org.jLOAF.action.Action;
 import org.jLOAF.action.AtomicAction;
 import org.jLOAF.action.ComplexAction;
 import org.jLOAF.casebase.Case;
+import org.jLOAF.casebase.CaseBase;
 import org.jLOAF.casebase.CaseRun;
 import org.jLOAF.inputs.AtomicInput;
 import org.jLOAF.inputs.ComplexInput;
@@ -63,7 +64,7 @@ public class DiscreteRandomAgentRunTool {
 		AtomicInput.setClassStrategy(new InputEquality());;
 		ComplexInput.setClassStrategy(new InputMean());
 		
-		kNNUtil.setWeightFunction(new LinearWeightFunction(0.05));
+		kNNUtil.setWeightFunction(new LinearWeightFunction(0.5));
 		
 		this.testingActionMapList = new InputActionHashMap[pair.size()];
 	}
@@ -146,8 +147,22 @@ public class DiscreteRandomAgentRunTool {
 					testAll(tokens[1], k);
 					break;
 				}
-				case "track":{
-					trackFailPoint();
+				case "track":
+				{
+					int failPoint = 7;
+					boolean exact = false;
+					if (tokens.length == 3){
+						if (tokens[2].equals("e")){
+							exact = true;
+						}
+						failPoint = Integer.parseInt(tokens[1]);
+					}
+					trackFailPoint(failPoint, exact);
+					break;
+				}
+				case "guess":
+				{
+					randomGuess();
 					break;
 				}
 				default:
@@ -159,6 +174,39 @@ public class DiscreteRandomAgentRunTool {
 			}
 		}
 		s.close();
+	}
+	private void helpFunction(){
+		System.out.println("Help Commands : ");
+		System.out.println("\t all       (train | test testNo)");
+		System.out.println("\t summary   (train | test testNo)");
+		System.out.println("\t find      searchString");
+		System.out.println("\t test      (best | knn) kValue");
+		System.out.println("\t track     failPoint exact");
+		System.out.println("\t guess");
+	}
+	
+	public void randomGuess(){
+		
+		int overallTotal = 0;
+		int randomTotal = 0;
+		for (TestingTrainingPair ttp : pair){
+			InputActionHashMap tmpMap = new InputActionHashMap();
+			CaseBase r = ttp.getTraining();
+			for (Case c : r.getCases()){
+				tmpMap.put(c.getInput(), c.getAction());
+				overallTotal++;
+			}
+			for (Input ahm : tmpMap.keySet()){
+				int subTotal = 0;
+				for (Action action : tmpMap.get(ahm).keySet()){
+					if (tmpMap.get(ahm).get(action) > subTotal){
+						subTotal = tmpMap.get(ahm).get(action);
+					}
+				}
+				randomTotal += subTotal;
+			}
+		}
+		System.out.println("Random % : " + (randomTotal * 1.0 / overallTotal));
 	}
 	
 	private void find(String input){
@@ -192,12 +240,14 @@ public class DiscreteRandomAgentRunTool {
 		}
 	}
 	
-	private void trackFailPoint(){
+	private void trackFailPoint(int failPoint, boolean exact){
 		ArrayList<Integer> points = new ArrayList<Integer>(this.failList.keySet());
 		Collections.sort(points);
 		
 		for(int i : points){
-			if (this.failList.get(i).size() != 7){
+			if (!exact && this.failList.get(i).size() < failPoint){
+				continue;
+			}else if (exact && this.failList.get(i).size() != failPoint){
 				continue;
 			}
 			ArrayList<ActionPair> actions = this.failList.get(i);
@@ -273,16 +323,7 @@ public class DiscreteRandomAgentRunTool {
 		System.out.println("Right : " + totalRight + " Pairs : " + pair.size());
 	}
 	
-	
-	
-	private void helpFunction(){
-		System.out.println("Help Commands : ");
-		System.out.println("\t all       (train | test testNo)");
-		System.out.println("\t summary   (train | test testNo)");
-		System.out.println("\t find      searchString");
-		System.out.println("\t test      (best | knn) kValue");
-	}
-	
+		
 	class ActionPair{
 		private Action guessAction;
 		private Action actualAction;
