@@ -16,6 +16,7 @@ import org.jLOAF.inputs.Input;
 import org.jLOAF.reasoning.BacktrackingReasoning;
 import org.jLOAF.reasoning.BestRunReasoning;
 import org.jLOAF.reasoning.KNNBacktracking;
+import org.jLOAF.reasoning.SequentialReasoning;
 import org.jLOAF.retrieve.kNNUtil;
 import org.jLOAF.retrieve.sequence.weight.LinearWeightFunction;
 import org.jLOAF.sim.atomic.ActionEquality;
@@ -180,7 +181,7 @@ public class DiscreteRandomAgentRunTool {
 		System.out.println("\t all       (train | test testNo)");
 		System.out.println("\t summary   (train | test testNo)");
 		System.out.println("\t find      searchString");
-		System.out.println("\t test      (best | knn) kValue");
+		System.out.println("\t test      (best | knn | seq) kValue");
 		System.out.println("\t track     failPoint exact");
 		System.out.println("\t guess");
 	}
@@ -265,6 +266,8 @@ public class DiscreteRandomAgentRunTool {
 			reasoning = new KNNBacktracking(pair.get(test).getTraining(), null, k, true, true);
 		}else if (reason.equals("best")){
 			reasoning = new BestRunReasoning(pair.get(test).getTraining(), k, true);
+		}else if (reason.equals("seq")){
+			reasoning = new SequentialReasoning(pair.get(test).getTraining(), null, k, true);
 		}else{
 			System.out.println("Failed to test");
 			return new HashMap<Integer, Integer>();
