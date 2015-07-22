@@ -7,6 +7,7 @@ import java.util.Scanner;
 import org.jLOAF.action.Action;
 import org.jLOAF.action.AtomicAction;
 import org.jLOAF.action.ComplexAction;
+import org.jLOAF.agent.RunAgent;
 import org.jLOAF.casebase.Case;
 import org.jLOAF.casebase.CaseBase;
 import org.jLOAF.casebase.CaseRun;
@@ -273,25 +274,25 @@ public class DiscreteRandomAgentRunTool {
 			return new HashMap<Integer, Integer>();
 		}
 		HashMap<Integer, Integer> errorMap = new HashMap<Integer, Integer>();
-		CaseRun run = new CaseRun("tmpRun");
 		
-		reasoning.setCurrentRun(run);
+		RunAgent agent = new RunAgent(reasoning, pair.get(test).getTraining());
+		reasoning.setCurrentRun(agent.getCurrentRun());
 		
 		CaseRun testRun = pair.get(test).getTesting();
 		for (int i = testRun.getRunLength() - 1; i >= 0; i--){
 			Case c = testRun.getCasePastOffset(i);
-			run.addCaseToRun(new Case(c.getInput(), null, run.getCurrentCase()));
-			Action a = reasoning.selectAction(c.getInput());
+			Action a = agent.senseEnvironment(c.getInput());
 			if (!a.equals(c.getAction())){
-				this.failList.traceFailPoint(run.getRunLength(), a, c.getAction());
-				if (errorMap.containsKey(run.getRunLength())){
-					errorMap.put(run.getRunLength(), errorMap.get(run.getRunLength()) + 1);
+				this.failList.traceFailPoint(agent.getCurrentRun().getRunLength(), a, c.getAction());
+				if (errorMap.containsKey(agent.getCurrentRun().getRunLength())){
+					errorMap.put(agent.getCurrentRun().getRunLength(), errorMap.get(agent.getCurrentRun().getRunLength()) + 1);
 				}else{
-					errorMap.put(run.getRunLength(), 1);
+					errorMap.put(agent.getCurrentRun().getRunLength(), 1);
 				}
+				Case amendCase = new Case(c.getInput(), c.getAction(), null);
+				agent.learn(amendCase);
 			}
-			Case newCase = new Case(c.getInput(), c.getAction(), run.getCurrentCase().getPreviousCase());
-			run.amendCurrentCase(newCase);
+			
 		}
 		return errorMap;
 	}
