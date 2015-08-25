@@ -137,13 +137,15 @@ public class txtFileConverter extends JFrame implements ActionListener{
 				}
 				
 				if(isInListAlready != true && line.isEmpty() == false){
-					rowHeaders.add(line.split(" : ")[0]);
+					if (line.split(" : ")[0].contains("Accuracy") || line.split(" : ")[0].contains("Global F1")){
+						rowHeaders.add(line.split(" : ")[0]);
+					}
 				}
 			}
 			numLines++;
 		}
 		
-		rowHeaders.remove(0); //for some reason the header "Reasoning Method " remains within this array, thus it must be removed manually
+		//rowHeaders.remove(0); //for some reason the header "Reasoning Method " remains within this array, thus it must be removed manually
 		
 		System.out.println("Simulations : ");
 		for(int i = 0; i < rowHeaders.size(); i++){
@@ -175,7 +177,7 @@ public class txtFileConverter extends JFrame implements ActionListener{
 	 * This function creates and returns an array (within another array) which will store all the data from the .txt file which will be transfered to the created .csv document
 	 */
 	public String[][] arrayCreator() throws IOException {
-		int totalNumRows = (rowHeaders.size() + 4)*rowReasoningMethods.size()*rowIterations.size() + rowReasoningMethods.size() + 1;
+		int totalNumRows = (rowHeaders.size() + 3) * rowReasoningMethods.size() * (rowIterations.size()) + rowReasoningMethods.size() + 1;
 		System.out.println("Number of rows in the csv doc : " +  totalNumRows);
 		String[][] fileText = new String[totalNumRows][colHeaders.size()+1];
 		System.out.println("Number of columns in the csv doc : " + fileText[0].length);
@@ -188,19 +190,18 @@ public class txtFileConverter extends JFrame implements ActionListener{
 			fileText[currentRow][0] = "Reasoning Method";
 			fileText[currentRow][1] = r;	
 			currentRow++;
-			for(String k:rowIterations){
+			for(String k : rowIterations){
 				fileText[currentRow][0] = "Random Type:";
 				currentRow++;
 				fileText[currentRow][0] = "k";
 				currentRow++;
 				fileText[currentRow][0] = "Iteration";
-
 				currentRow++;
-				for(String s:rowHeaders){
+				
+				for(String s : rowHeaders){
 					fileText[currentRow][0] = s;
 					currentRow++;
 				}
-				currentRow++;
 			}
 		}
 	
@@ -212,76 +213,55 @@ public class txtFileConverter extends JFrame implements ActionListener{
 		}
 		System.out.println("\n");
 		int currentCol = 1;
-		int currentReasoning = 1;
-		String currentRand = null;
+		int currentReasoning = 0;
 		String currentReasoningName = null;
+		int iterIndex = 0;
 		currentRow = 0;
+		
+		int reasoningBlockHeader = 2;
+		int reasoningBlockSize = (rowHeaders.size() + 3) * rowIterations.size();
+		int iterBlockSize = (rowHeaders.size() + 3);
 		
 		BufferedReader txtFile = new BufferedReader(new FileReader(fileLocation));		
 		String line = txtFile.readLine();
 		while(line != null){
 			System.out.println("Beginning Row: " + currentRow);
 			System.out.println(line);
-			if(line.split(" : ")[0].equals("Weight Function") == true){
-				currentCol = colHeaders.indexOf(line.split(" : ")[1]) + 1;
-				if(colHeaders.indexOf(line.split(" : ")[1]) !=0){
-					currentRow = currentRow - rowHeaders.size() - 3;
+			String lineSplit[] = line.split(" : ");
+			
+			if (lineSplit[0].equals("Weight Function")){
+				currentCol = Math.max(colHeaders.indexOf(lineSplit[1]) + 1, 1);
+				if(colHeaders.indexOf(lineSplit[1]) !=0){
+					currentRow = reasoningBlockHeader + currentReasoning * reasoningBlockSize +  iterBlockSize * iterIndex + ((currentReasoning == 0) ? 0 : 1);
 				}
-					String[] randomType = currentRand.split(", k : ");
-					fileText[currentRow-1][currentCol] = randomType[0];
+				currentRow += 3;
+			}else if (lineSplit[0].equals("Reasoning Method")){
+				currentReasoningName = lineSplit[1];
+				System.out.println("Current Reasoning : " + currentReasoningName);
+				currentReasoning = rowReasoningMethods.indexOf(lineSplit[1]);
+				currentRow = reasoningBlockHeader + currentReasoning * reasoningBlockSize + ((currentReasoning == 0) ? 0 : 1);
+				currentCol = 1;
+			}else if (lineSplit[0].equals("Random, k") || lineSplit[0].equals("NonRandom, k")){
+				String[] randomType = line.split(", k : ");
+				if (rowIterations.indexOf(randomType[1]) != iterIndex){
+					currentCol = 1;
+				}
+				iterIndex = rowIterations.indexOf(randomType[1]);
+				currentRow = reasoningBlockHeader + currentReasoning * reasoningBlockSize +  iterBlockSize * iterIndex + ((currentReasoning == 0) ? 0 : 1);
+				fileText[currentRow][currentCol] = randomType[0];
+				fileText[currentRow + 1][currentCol] = randomType[1].split(" Iter ")[0];
+				fileText[currentRow + 2][currentCol] = randomType[1].split(" Iter ")[1];
+			}else if (!line.isEmpty()){
+				if (rowHeaders.indexOf(lineSplit[0]) != -1){
+					fileText[currentRow][currentCol] = lineSplit[1];
 					currentRow++;
-					fileText[currentRow-1][currentCol] = randomType[1].split(" Iter ")[0];
-					currentRow++;
-					fileText[currentRow-1][currentCol] = randomType[1].split(" Iter ")[1];	
+				}
 			}
-			else if(line.split(" : ")[0].equals("Reasoning Method") == true){
-				if(line.split(" : ")[1].equals("SEQ")){
-					currentReasoningName = "SEQ";
-				}
-				else{
-					currentReasoningName = null;
-				}
-				currentReasoning = rowReasoningMethods.indexOf(line.split(" : ")[1]);
-				System.out.println("Current Reasoning : " + currentReasoning);
-				if(rowReasoningMethods.indexOf(line.split(" : ")[1]) == 0){
-					currentRow = 2;
-				}
-				else{
-//					currentRow = (currentReasoning) * (rowHeaders.size() + 4) * rowIterations.size() + 3;
-					currentRow = currentReasoning * (rowHeaders.size() + 4) * rowIterations.size() + currentReasoning + 2;
-					System.out.println(currentReasoning + " * (" + rowHeaders.size() + " + 4) * " + rowIterations.size() + " + " + currentReasoning);
-				}
-				
-				currentRand = null;
-			}
-			else if(line.split(" : ")[0].equals("Random, k") || line.split(" : ")[0].equals("NonRandom, k")){
-				currentRow--;
-				currentRand = line;
-
-				if(currentReasoningName == "SEQ"){
-					currentRow++;
-					String[] randomType = currentRand.split(", k : ");
-					fileText[currentRow-1][currentCol] = randomType[0];
-					currentRow++;
-					fileText[currentRow-1][currentCol] = randomType[1].split(" Iter ")[0];
-					currentRow++;
-					fileText[currentRow-1][currentCol] = randomType[1].split(" Iter ")[1];
-				}						
-			}		
-			else if(line.isEmpty() == false){
-				System.out.println("Text being entered on line: " + currentRow);
-				fileText[currentRow-1][currentCol] = line.split(" : ")[1];
-			}
-			currentRow++;
 			line = txtFile.readLine();
 			System.out.println("Ending Row: " + currentRow + "\n");
+
 		}			
-		for(int j = 0; j < fileText.length; j ++){
-			for(int u = 0; u < fileText[0].length; u ++){
-				System.out.print(fileText[j][u] + tileSeperator);
-			}
-			System.out.println();
-		}	
+		txtFile.close();
 		return fileText;
 	}
 	
@@ -297,6 +277,8 @@ public class txtFileConverter extends JFrame implements ActionListener{
 				for(int j = 0; j < fileText[0].length; j++){
 					if(fileText[i][j] != null){
 						text = text + fileText[i][j] + tileSeperator;
+					}else{
+						text += tileSeperator;
 					}				
 				}
 				text = text + "\n";
@@ -356,8 +338,9 @@ public class txtFileConverter extends JFrame implements ActionListener{
 				csvFileCreator(fileDirectory + fileCreator.getText(), arrayCreator());
 			}
 			catch(Exception IOException){
-				instructions.setText("Error in file format/contents");
-				System.out.println("Error in file format/contents");
+				instructions.setText("Error in file format/contents : " + IOException.getMessage());
+				System.out.println("Error in file format/contents : " + IOException.getMessage());
+				IOException.printStackTrace();
 			}
 			System.exit(0);
 		}
