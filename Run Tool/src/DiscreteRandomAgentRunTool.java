@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 import org.jLOAF.action.Action;
@@ -191,6 +192,8 @@ public class DiscreteRandomAgentRunTool {
 		
 		int overallTotal = 0;
 		int randomTotal = 0;
+		int testingTotal = 0;
+		Random random = new Random(0);
 		for (TestingTrainingPair ttp : pair){
 			InputActionHashMap tmpMap = new InputActionHashMap();
 			CaseBase r = ttp.getTraining();
@@ -207,8 +210,32 @@ public class DiscreteRandomAgentRunTool {
 				}
 				randomTotal += subTotal;
 			}
+			
+			
+			CaseRun run = ttp.getTesting();
+			for (int i = run.getRunLength() - 1; i >= 0; i--){
+				Case c = run.getCasePastOffset(i);
+				if (tmpMap.containsKey(c.getInput())){
+					int highest = -1;
+					Action a = null;
+					for (Action action : tmpMap.get(c.getInput()).keySet()){
+						if (tmpMap.get(c.getInput()).get(action) > highest){
+							highest = tmpMap.get(c.getInput()).get(action);
+							a = action;
+						}
+					}
+					if (c.getAction().similarity(a) == 1){
+						testingTotal++;
+					}
+				}else{
+					if (random.nextInt(4) == 1){
+						testingTotal++;
+					}
+				}
+			}
 		}
 		System.out.println("Random % : " + (randomTotal * 1.0 / overallTotal));
+		System.out.println("Testing % : " + (testingTotal * 1.0 / overallTotal));
 	}
 	
 	private void find(String input){
@@ -282,7 +309,8 @@ public class DiscreteRandomAgentRunTool {
 		for (int i = testRun.getRunLength() - 1; i >= 0; i--){
 			Case c = testRun.getCasePastOffset(i);
 			Action a = agent.senseEnvironment(c.getInput());
-			if (!a.equals(c.getAction())){
+//			if (!a.equals(c.getAction())){
+			if (a.similarity(c.getAction()) != 1){
 				this.failList.traceFailPoint(agent.getCurrentRun().getRunLength(), a, c.getAction());
 				if (errorMap.containsKey(agent.getCurrentRun().getRunLength())){
 					errorMap.put(agent.getCurrentRun().getRunLength(), errorMap.get(agent.getCurrentRun().getRunLength()) + 1);
