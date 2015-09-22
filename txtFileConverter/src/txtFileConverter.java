@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Font;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -93,52 +94,55 @@ public class txtFileConverter extends JFrame implements ActionListener{
 				
 				boolean isInListAlready = false;
 
-				if((line.split(" : ")[0]).equals("Weight Function") == true){
+				String[] colonSplit = line.split(" : ");
+				if((colonSplit[0]).equals("Weight Function") == true){
 					for(int i = 0; i < colHeaders.size() && isInListAlready == false; i++){
-						if((colHeaders.get(i)).equals(line.split(" : ")[1]) == true){
+						if((colHeaders.get(i)).equals(colonSplit[1]) == true){
 							isInListAlready = true;
 						}
 					}
 					if(isInListAlready == false){
-						colHeaders.add(line.split(" : ")[1]);
+						colHeaders.add(colonSplit[1]);
 					}
 				}
 				
-				if((line.split(" : ")[0]).equals("Reasoning Method")){
+				if((colonSplit[0]).equals("Reasoning Method")){
 					isInListAlready = false;
 					for(int i = 0; i < rowReasoningMethods.size() && isInListAlready == false; i++){
-						if((rowReasoningMethods.get(i)).equals(line.split(" : ")[1]) == true){
+						if((rowReasoningMethods.get(i)).equals(colonSplit[1]) == true){
 							isInListAlready = true;
 						}
 					}
 					if(isInListAlready == false){
-						rowReasoningMethods.add(line.split(" : ")[1]);
+						rowReasoningMethods.add(colonSplit[1]);
 					}
 				}
 				
-				if((line.split(" : ")[0]).equals("Random, k") || (line.split(" : ")[0]).equals("NonRandom, k")){
+				if((colonSplit[0]).equals("Random, k") || (colonSplit[0]).equals("Non Random, k")){
 					isInListAlready = false;
 					for(int i = 0; i < rowIterations.size() && isInListAlready == false; i++){
-						if((rowIterations.get(i)).equals(line.split(" : ")[1]) == true){
+						if((rowIterations.get(i)).equals(colonSplit[1]) == true){
 							isInListAlready = true;
 						}
 					}
 					if(isInListAlready == false){
-						rowIterations.add(line.split(" : ")[1]);
+						rowIterations.add(colonSplit[1]);
 					}
 				}
 				isInListAlready = false;
 				for(int i = 0; i < rowHeaders.size() && isInListAlready == false; i++){
-					if((rowHeaders.get(i)).equals(line.split(" : ")[0]) == true || line.split(" : ")[0].equals("Weight Function") == true || 
-							line.split(" : ")[0].equals("Random, k") == true || line.split(" : ")[0].equals("NonRandom, k") == true ||
-							line.split(" : ")[0].equals("Reasoning Method") == true){
+					if((rowHeaders.get(i)).equals(colonSplit[0]) == true || colonSplit[0].equals("Weight Function") == true || 
+							colonSplit[0].equals("Random, k") == true || colonSplit[0].equals("NonRandom, k") == true ||
+							colonSplit[0].equals("Reasoning Method") == true){
 						isInListAlready = true;
 					}
 				}
 				
 				if(isInListAlready != true && line.isEmpty() == false){
-					if (line.split(" : ")[0].contains("Accuracy") || line.split(" : ")[0].contains("Global F1")){
-						rowHeaders.add(line.split(" : ")[0]);
+					if (colonSplit[0].contains("Accuracy") || 
+							colonSplit[0].contains("Global F1") || 
+							colonSplit[0].contains("Simulation Time")){
+						rowHeaders.add(colonSplit[0]);
 					}
 				}
 			}
@@ -177,9 +181,9 @@ public class txtFileConverter extends JFrame implements ActionListener{
 	 * This function creates and returns an array (within another array) which will store all the data from the .txt file which will be transfered to the created .csv document
 	 */
 	public String[][] arrayCreator() throws IOException {
-		int totalNumRows = (rowHeaders.size() + 3) * rowReasoningMethods.size() * (rowIterations.size()) + rowReasoningMethods.size() + 1;
+		int totalNumRows = (rowHeaders.size() + 3) * rowReasoningMethods.size() * (rowIterations.size()) + rowReasoningMethods.size() + 2;
 		System.out.println("Number of rows in the csv doc : " +  totalNumRows);
-		String[][] fileText = new String[totalNumRows][colHeaders.size()+1];
+		String[][] fileText = new String[totalNumRows][Math.max(colHeaders.size()+1, 2)];
 		System.out.println("Number of columns in the csv doc : " + fileText[0].length);
 		fileText[0][0] = "Weight Function";
 		for(int h = 1; h <= colHeaders.size(); h++){
@@ -217,6 +221,7 @@ public class txtFileConverter extends JFrame implements ActionListener{
 		String currentReasoningName = null;
 		int iterIndex = 0;
 		currentRow = 0;
+		boolean firstRow = true;
 		
 		int reasoningBlockHeader = 2;
 		int reasoningBlockSize = (rowHeaders.size() + 3) * rowIterations.size();
@@ -226,35 +231,55 @@ public class txtFileConverter extends JFrame implements ActionListener{
 		String line = txtFile.readLine();
 		while(line != null){
 			System.out.println("Beginning Row: " + currentRow);
-			System.out.println(line);
+			System.out.println("% " + line);
 			String lineSplit[] = line.split(" : ");
 			
 			if (lineSplit[0].equals("Weight Function")){
 				currentCol = Math.max(colHeaders.indexOf(lineSplit[1]) + 1, 1);
-				if(colHeaders.indexOf(lineSplit[1]) !=0){
-					currentRow = reasoningBlockHeader + currentReasoning * reasoningBlockSize +  iterBlockSize * iterIndex + ((currentReasoning == 0) ? 0 : 1);
-				}
-				currentRow += 3;
+//				if(colHeaders.indexOf(lineSplit[1]) == -1){
+//					currentRow = reasoningBlockHeader + currentReasoning * reasoningBlockSize + iterBlockSize * iterIndex + ((currentReasoning == 0) ? 0 : 1);
+//				}else{
+//					System.out.println("COL SPLIT : " + lineSplit[1]);
+//				}
+//				currentRow += 3;
 			}else if (lineSplit[0].equals("Reasoning Method")){
 				currentReasoningName = lineSplit[1];
 				System.out.println("Current Reasoning : " + currentReasoningName);
 				currentReasoning = rowReasoningMethods.indexOf(lineSplit[1]);
 				currentRow = reasoningBlockHeader + currentReasoning * reasoningBlockSize + ((currentReasoning == 0) ? 0 : 1);
 				currentCol = 1;
-			}else if (lineSplit[0].equals("Random, k") || lineSplit[0].equals("NonRandom, k")){
+			}else if (lineSplit[0].equals("Random, k") || lineSplit[0].equals("Non Random, k")){
 				String[] randomType = line.split(", k : ");
 				if (rowIterations.indexOf(randomType[1]) != iterIndex){
 					currentCol = 1;
+				}else{
+					if (!firstRow){
+						currentCol++;
+					}
 				}
+				firstRow = false;
 				iterIndex = rowIterations.indexOf(randomType[1]);
 				currentRow = reasoningBlockHeader + currentReasoning * reasoningBlockSize +  iterBlockSize * iterIndex + ((currentReasoning == 0) ? 0 : 1);
 				fileText[currentRow][currentCol] = randomType[0];
-				fileText[currentRow + 1][currentCol] = randomType[1].split(" Iter ")[0];
-				fileText[currentRow + 2][currentCol] = randomType[1].split(" Iter ")[1];
+				currentRow++;
+				if (lineSplit[0].equals("Non Random, k")){
+					fileText[currentRow][currentCol] = lineSplit[1];
+					currentRow += 2;
+				}else{
+					fileText[currentRow][currentCol] = randomType[1].split(" Iter ")[0];
+					currentRow++;
+					fileText[currentRow][currentCol] = randomType[1].split(" Iter ")[1];
+					currentRow++;
+				}
 			}else if (!line.isEmpty()){
 				if (rowHeaders.indexOf(lineSplit[0]) != -1){
-					fileText[currentRow][currentCol] = lineSplit[1];
-					currentRow++;
+					try{
+						fileText[currentRow][currentCol] = lineSplit[1];
+						currentRow++;
+					}catch (ArrayIndexOutOfBoundsException e){
+						System.out.println("lineSplit[1] : " + lineSplit[1] + " , lineSplit[0] : " + lineSplit[0]);
+						throw new ArrayIndexOutOfBoundsException(e.getMessage());
+					}
 				}
 			}
 			line = txtFile.readLine();
@@ -331,11 +356,13 @@ public class txtFileConverter extends JFrame implements ActionListener{
 			try{
 				fileChooser = new JFileChooser();
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				File location = new File(fileLocation);
+				fileChooser.setCurrentDirectory(location.getParentFile());
 				fileChooser.showOpenDialog(this);
 				fileDirectory = fileChooser.getSelectedFile().toString() + "/";
 
 				
-				csvFileCreator(fileDirectory + fileCreator.getText(), arrayCreator());
+				csvFileCreator(fileDirectory + location.getName().replace(".txt", ".csv"), arrayCreator());
 			}
 			catch(Exception IOException){
 				instructions.setText("Error in file format/contents : " + IOException.getMessage());
