@@ -30,6 +30,26 @@ import org.jLOAF.tools.TestingTrainingPair;
 
 
 public class DiscreteRandomAgentRunTool {
+	
+	enum Command{
+		ALL,
+		SUMMARY,
+		FIND,
+		TEST,
+		TRACK,
+		GUESS,
+		EXIT,
+		HELP,
+		;
+		public static Command stringToCommand(String str){
+			for (Command c : Command.values()){
+				if (str.equals(c.name().toLowerCase())){
+					return c;
+				}
+			}
+			return null;
+		}
+	}
 
 	private String traceFolder;
 	private int foldNumber;
@@ -41,10 +61,6 @@ public class DiscreteRandomAgentRunTool {
 	private InputActionHashMap testingActionMapList[];
 	
 	private FailPointList failList;
-	
-	private static final String EXIT_STRING = "exit";
-	private static final String HELP_STRING = "help";
-	
 	
 	private int total;
 	
@@ -103,17 +119,17 @@ public class DiscreteRandomAgentRunTool {
 		String msg = "";
 		Scanner s = new Scanner(System.in);
 		helpFunction();
-		while(!msg.equals(EXIT_STRING)){
+		while(!msg.equals(Command.EXIT.name().toLowerCase())){
 			try{
 				msg = s.nextLine();
 				String tokens[] = msg.split(" ");
-				switch(tokens[0]){
-				case EXIT_STRING:
+				switch(Command.stringToCommand(tokens[0])){
+				case EXIT:
 					break;
-				case HELP_STRING:
+				case HELP:
 					helpFunction();
 					break;
-				case "summary":
+				case SUMMARY:
 				{
 					int index = 0;
 					if (tokens.length > 2){
@@ -124,7 +140,7 @@ public class DiscreteRandomAgentRunTool {
 					summary(map, length);
 					break;
 				}
-				case "all":
+				case ALL:
 				{
 					int index = 0;
 					if (tokens.length > 2){
@@ -135,7 +151,7 @@ public class DiscreteRandomAgentRunTool {
 					all(map, length);
 					break;
 				}
-				case "find":
+				case FIND:
 				{
 					String searchStr = "";
 					for (int i = 1; i < tokens.length; i++){
@@ -144,13 +160,13 @@ public class DiscreteRandomAgentRunTool {
 					find(searchStr.trim());
 					break;
 				}
-				case "test":
+				case TEST:
 				{
 					int k = Integer.parseInt(tokens[2]);
 					testAll(tokens[1], k);
 					break;
 				}
-				case "track":
+				case TRACK:
 				{
 					int failPoint = 7;
 					boolean exact = false;
@@ -163,7 +179,7 @@ public class DiscreteRandomAgentRunTool {
 					trackFailPoint(failPoint, exact);
 					break;
 				}
-				case "guess":
+				case GUESS:
 				{
 					randomGuess();
 					break;
@@ -178,6 +194,7 @@ public class DiscreteRandomAgentRunTool {
 		}
 		s.close();
 	}
+
 	private void helpFunction(){
 		System.out.println("Help Commands : ");
 		System.out.println("\t all       (train | test testNo)");

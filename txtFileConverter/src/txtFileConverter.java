@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.event.*;
 
@@ -91,7 +93,9 @@ public class txtFileConverter extends JFrame implements ActionListener{
 		while(line != null){
 			line = txtFile.readLine();
 			if(line != null){
-				
+				if (!line.isEmpty() && line.charAt(0) == '|'){
+					continue;
+				}
 				boolean isInListAlready = false;
 
 				String[] colonSplit = line.split(" : ");
@@ -230,6 +234,10 @@ public class txtFileConverter extends JFrame implements ActionListener{
 		BufferedReader txtFile = new BufferedReader(new FileReader(fileLocation));		
 		String line = txtFile.readLine();
 		while(line != null){
+			if (!line.isEmpty() && line.charAt(0) == '|'){
+				line = txtFile.readLine();
+				continue;
+			}
 			System.out.println("Beginning Row: " + currentRow);
 			System.out.println("% " + line);
 			String lineSplit[] = line.split(" : ");
@@ -278,6 +286,7 @@ public class txtFileConverter extends JFrame implements ActionListener{
 						currentRow++;
 					}catch (ArrayIndexOutOfBoundsException e){
 						System.out.println("lineSplit[1] : " + lineSplit[1] + " , lineSplit[0] : " + lineSplit[0]);
+						txtFile.close();
 						throw new ArrayIndexOutOfBoundsException(e.getMessage());
 					}
 				}
@@ -329,9 +338,9 @@ public class txtFileConverter extends JFrame implements ActionListener{
 		if(arg0.getSource() == start){
 			try{
 				fileChooser = new JFileChooser();
+				fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files", "txt"));
 				fileChooser.showOpenDialog(this);
 				fileLocation = fileChooser.getSelectedFile().toString() + "/";
-
 				BufferedReader txtFile = new BufferedReader(new FileReader(fileLocation));	//only present to test whether the user-inputed file can be read or not
 				start.setVisible(false);
 				create.setVisible(true);
@@ -356,6 +365,7 @@ public class txtFileConverter extends JFrame implements ActionListener{
 			try{
 				fileChooser = new JFileChooser();
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				
 				File location = new File(fileLocation);
 				fileChooser.setCurrentDirectory(location.getParentFile());
 				fileChooser.showOpenDialog(this);
