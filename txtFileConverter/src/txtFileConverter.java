@@ -187,7 +187,7 @@ public class txtFileConverter extends JFrame implements ActionListener{
 	public String[][] arrayCreator() throws IOException {
 		int totalNumRows = (rowHeaders.size() + 3) * rowReasoningMethods.size() * (rowIterations.size()) + rowReasoningMethods.size() + 2;
 		System.out.println("Number of rows in the csv doc : " +  totalNumRows);
-		String[][] fileText = new String[totalNumRows][Math.max(colHeaders.size()+1, 2)];
+		String[][] fileText = new String[totalNumRows][Math.max(colHeaders.size()+1, 3)];
 		System.out.println("Number of columns in the csv doc : " + fileText[0].length);
 		fileText[0][0] = "Weight Function";
 		for(int h = 1; h <= colHeaders.size(); h++){
