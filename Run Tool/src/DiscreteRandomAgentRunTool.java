@@ -9,24 +9,25 @@ import org.jLOAF.action.Action;
 import org.jLOAF.action.AtomicAction;
 import org.jLOAF.action.ComplexAction;
 import org.jLOAF.agent.RunAgent;
+import org.jLOAF.casebase.AtomicCase;
 import org.jLOAF.casebase.Case;
 import org.jLOAF.casebase.CaseBase;
-import org.jLOAF.casebase.CaseRun;
-import org.jLOAF.inputs.AtomicInput;
+import org.jLOAF.casebase.ComplexCase;
 import org.jLOAF.inputs.ComplexInput;
 import org.jLOAF.inputs.Input;
 import org.jLOAF.reasoning.BacktrackingReasoning;
 import org.jLOAF.reasoning.BestRunReasoning;
-import org.jLOAF.reasoning.KNNBacktracking;
+import org.jLOAF.reasoning.EditDistanceReasoning;
+import org.jLOAF.reasoning.JaccardDistanceReasoning;
 import org.jLOAF.reasoning.SequentialReasoning;
-import org.jLOAF.retrieve.kNNUtil;
-import org.jLOAF.retrieve.sequence.weight.LinearWeightFunction;
 import org.jLOAF.sim.atomic.ActionEquality;
-import org.jLOAF.sim.atomic.InputEquality;
 import org.jLOAF.sim.complex.ActionMean;
 import org.jLOAF.sim.complex.InputMean;
 import org.jLOAF.tools.LeaveOneOut;
 import org.jLOAF.tools.TestingTrainingPair;
+
+import agent.backtracking.SandboxFeatureInput;
+import agent.backtracking.SandboxSimilarity;
 
 
 public class DiscreteRandomAgentRunTool {
@@ -50,6 +51,27 @@ public class DiscreteRandomAgentRunTool {
 			return null;
 		}
 	}
+	
+	enum Reasoning{
+		KNN,
+		BEST,
+		SEQ,
+		JACCARD,
+		EDIT,
+		;
+		
+		public static Reasoning stringToReasoning(String str){
+			for (Reasoning c : Reasoning.values()){
+				if (str.equals(c.name().toLowerCase())){
+					return c;
+				}
+			}
+			return null;
+		}
+	}
+	
+	public static final double DEFAULT_THRESHOLD = 0.99;
+	public static final double DEFAULT_EQUAL_THRESHOLD = 0.99;
 
 	private String traceFolder;
 	private int foldNumber;
@@ -77,13 +99,18 @@ public class DiscreteRandomAgentRunTool {
 		LeaveOneOut out = LeaveOneOut.loadTrainAndTest(this.traceFolder, runSize, foldNumber);
 		pair = out.getTestingAndTrainingSets();
 		
+//		AtomicAction.setClassStrategy(new ActionEquality());
+//		ComplexAction.setClassStrategy(new ActionMean());
+//		
+//		AtomicInput.setClassStrategy(new InputEquality());;
+//		ComplexInput.setClassStrategy(new InputMean());
+		
+		ComplexInput.setClassStrategy(new InputMean());
+		//AtomicInput.setClassStrategy(new InputEquality());
+		SandboxFeatureInput.setClassSimilarityMetric(new SandboxSimilarity());
+		//SandboxFeatureInput.setClassSimilarityMetric(new SandboxSequenceSimilarity());
 		AtomicAction.setClassStrategy(new ActionEquality());
 		ComplexAction.setClassStrategy(new ActionMean());
-		
-		AtomicInput.setClassStrategy(new InputEquality());;
-		ComplexInput.setClassStrategy(new InputMean());
-		
-		kNNUtil.setWeightFunction(new LinearWeightFunction(0.5));
 		
 		this.testingActionMapList = new InputActionHashMap[pair.size()];
 	}
@@ -91,9 +118,10 @@ public class DiscreteRandomAgentRunTool {
 	public void runTool(){
 		int index = 0;
 		for (TestingTrainingPair ttp : pair){
-			CaseRun r = ttp.getTesting();
-			for (int i = 0; i < r.getRunLength(); i++){
-				Case c = r.getCasePastOffset(i);
+			ComplexCase r = ttp.getTesting();
+			List<Case> cases = r.toArrayList();
+			for (int i = 0; i < cases.size(); i++){
+				Case c = cases.get(i);
 				this.inputActionMap.put(c.getInput(), c.getAction());
 			}
 			buildTestingList(index);
@@ -106,10 +134,11 @@ public class DiscreteRandomAgentRunTool {
 	}
 	
 	private void buildTestingList(int runNum){
-		CaseRun run = pair.get(runNum).getTesting();
+		ComplexCase run = pair.get(runNum).getTesting();
 		InputActionHashMap map = new InputActionHashMap();
-		for (int i = 0; i < run.getRunLength(); i++){
-			Case c = run.getCasePastOffset(i);
+		List<Case> cases = run.toArrayList();
+		for (int i = 0; i < cases.size(); i++){
+			Case c = cases.get(i);
 			map.put(c.getInput(), c.getAction());
 		}
 		this.testingActionMapList[runNum] = map;
@@ -136,7 +165,7 @@ public class DiscreteRandomAgentRunTool {
 						index = Integer.parseInt(tokens[2]);
 					}
 					InputActionHashMap map = (tokens[1].equals("train")) ? inputActionMap : testingActionMapList[index];
-					int length = (tokens[1].equals("train")) ? total : pair.get(index).getTesting().getRunLength();
+					int length = (tokens[1].equals("train")) ? total : pair.get(index).getTesting().getComplexCaseSize();
 					summary(map, length);
 					break;
 				}
@@ -147,7 +176,7 @@ public class DiscreteRandomAgentRunTool {
 						index = Integer.parseInt(tokens[2]);
 					}
 					InputActionHashMap map = (tokens[1].equals("train")) ? inputActionMap : testingActionMapList[index];
-					int length = (tokens[1].equals("train")) ? total : pair.get(index).getTesting().getRunLength();
+					int length = (tokens[1].equals("train")) ? total : pair.get(index).getTesting().getComplexCaseSize();
 					all(map, length);
 					break;
 				}
@@ -162,8 +191,11 @@ public class DiscreteRandomAgentRunTool {
 				}
 				case TEST:
 				{
-					int k = Integer.parseInt(tokens[2]);
-					testAll(tokens[1], k);
+					double threshold = -1;
+					if (tokens.length >= 3){
+						threshold = Double.parseDouble(tokens[2]);
+					}
+					testAll(tokens[1], threshold);
 					break;
 				}
 				case TRACK:
@@ -200,9 +232,17 @@ public class DiscreteRandomAgentRunTool {
 		System.out.println("\t all       (train | test testNo)");
 		System.out.println("\t summary   (train | test testNo)");
 		System.out.println("\t find      searchString");
-		System.out.println("\t test      (best | knn | seq) kValue");
+		System.out.println("\t test      (" + getReasoningString() + ") kValue");
 		System.out.println("\t track     failPoint exact");
 		System.out.println("\t guess");
+	}
+	
+	private String getReasoningString(){
+		String s = "";
+		for (Reasoning r : Reasoning.values()){
+			s += r.name().toLowerCase() + " | ";
+		}
+		return s.trim().substring(0, s.length() - 1);
 	}
 	
 	public void randomGuess(){
@@ -229,9 +269,10 @@ public class DiscreteRandomAgentRunTool {
 			}
 			
 			
-			CaseRun run = ttp.getTesting();
-			for (int i = run.getRunLength() - 1; i >= 0; i--){
-				Case c = run.getCasePastOffset(i);
+			ComplexCase run = ttp.getTesting();
+			List<Case> cases = run.toArrayList();
+			for (int i = cases.size() - 1; i >= 0; i--){
+				Case c = cases.get(i);
 				if (tmpMap.containsKey(c.getInput())){
 					int highest = -1;
 					Action a = null;
@@ -251,8 +292,8 @@ public class DiscreteRandomAgentRunTool {
 				}
 			}
 		}
-		System.out.println("Random % : " + (randomTotal * 1.0 / overallTotal));
-		System.out.println("Testing % : " + (testingTotal * 1.0 / overallTotal));
+		System.out.println("Best Action % : " + (randomTotal * 1.0 / overallTotal));
+		System.out.println("Random Action % : " + (testingTotal * 1.0 / overallTotal));
 	}
 	
 	private void find(String input){
@@ -305,15 +346,26 @@ public class DiscreteRandomAgentRunTool {
 		}
 	}
 
-	private HashMap<Integer, Integer> testReasoning(String reason, int test, int k){
+	private HashMap<Integer, Integer> testReasoning(String reason, int test, double threshold){
+		double reasoningThreshold = DEFAULT_THRESHOLD;
+		if (threshold >= -1){
+			reasoningThreshold = threshold;
+		}
 		BacktrackingReasoning reasoning = null;
-		if (reason.equals("knn")){
-			reasoning = new KNNBacktracking(pair.get(test).getTraining(), null, k, true, true);
-		}else if (reason.equals("best")){
-			reasoning = new BestRunReasoning(pair.get(test).getTraining(), k, true);
-		}else if (reason.equals("seq")){
-			reasoning = new SequentialReasoning(pair.get(test).getTraining(), null, k, true);
-		}else{
+		switch (Reasoning.stringToReasoning(reason)){
+		case SEQ:
+			reasoning = new SequentialReasoning(pair.get(test).getTraining(), reasoningThreshold, null);
+			break;	
+		case BEST:
+			reasoning = new BestRunReasoning(pair.get(test).getTraining(), reasoningThreshold);
+			break;
+		case JACCARD:
+			reasoning = new JaccardDistanceReasoning(pair.get(test).getTraining(), reasoningThreshold, DEFAULT_EQUAL_THRESHOLD);
+			break;
+		case EDIT:
+			reasoning = new EditDistanceReasoning(pair.get(test).getTraining(), reasoningThreshold);
+			break;
+		default:
 			System.out.println("Failed to test");
 			return new HashMap<Integer, Integer>();
 		}
@@ -322,19 +374,20 @@ public class DiscreteRandomAgentRunTool {
 		RunAgent agent = new RunAgent(reasoning, pair.get(test).getTraining());
 		reasoning.setCurrentRun(agent.getCurrentRun());
 		
-		CaseRun testRun = pair.get(test).getTesting();
-		for (int i = testRun.getRunLength() - 1; i >= 0; i--){
-			Case c = testRun.getCasePastOffset(i);
+		ComplexCase testRun = pair.get(test).getTesting();
+		List<Case> cases = testRun.toArrayList();
+		for (int i = cases.size() - 1; i >= 0; i--){
+			Case c = cases.get(i);
 			Action a = agent.senseEnvironment(c.getInput());
 //			if (!a.equals(c.getAction())){
 			if (a.similarity(c.getAction()) != 1){
-				this.failList.traceFailPoint(agent.getCurrentRun().getRunLength(), a, c.getAction());
-				if (errorMap.containsKey(agent.getCurrentRun().getRunLength())){
-					errorMap.put(agent.getCurrentRun().getRunLength(), errorMap.get(agent.getCurrentRun().getRunLength()) + 1);
+				this.failList.traceFailPoint(agent.getCurrentRun().getComplexCaseSize(), a, c.getAction());
+				if (errorMap.containsKey(agent.getCurrentRun().getComplexCaseSize())){
+					errorMap.put(agent.getCurrentRun().getComplexCaseSize(), errorMap.get(agent.getCurrentRun().getComplexCaseSize()) + 1);
 				}else{
-					errorMap.put(agent.getCurrentRun().getRunLength(), 1);
+					errorMap.put(agent.getCurrentRun().getComplexCaseSize(), 1);
 				}
-				Case amendCase = new Case(c.getInput(), c.getAction(), null);
+				Case amendCase = new AtomicCase(c.getInput(), c.getAction());
 				agent.learn(amendCase);
 			}
 			
@@ -342,11 +395,11 @@ public class DiscreteRandomAgentRunTool {
 		return errorMap;
 	}
 	
-	private void testAll(String reason, int k){
+	private void testAll(String reason, double threshold){
 		HashMap<Integer, Integer> errorMap = new HashMap<Integer, Integer>();
 		this.failList = new FailPointList();
 		for (int test = 0; test < pair.size(); test++){
-			HashMap<Integer, Integer> tmpMap = testReasoning(reason, test, k);
+			HashMap<Integer, Integer> tmpMap = testReasoning(reason, test, threshold);
 			for (Integer i : tmpMap.keySet()){
 				if (errorMap.containsKey(i)){
 					errorMap.put(i, tmpMap.get(i) + errorMap.get(i));
