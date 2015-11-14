@@ -10,6 +10,8 @@ public class RunTool {
 	
 	public static ExpertStrategy expert = null;
 	
+	public static final String MAP_DIR = "C:/Users/calebchan/Desktop/Stuff/workspace/LFOsimulator/maps";
+	
 	
 	public static void main(String args[]){
 //		String file = "C:/Users/calebchan/Desktop/Stuff/workspace/Test Data/Batch Test 3/TB/Expert/Run 1/SmartRandomAgent";
@@ -17,6 +19,7 @@ public class RunTool {
 		String baseFolder = "C:/Users/calebchan/Desktop/Stuff/workspace/Test Data/Batch Test 3/TB/Expert/";
 		String fileName = "";
 		File file = new File(baseFolder);
+		@SuppressWarnings("resource")
 		Scanner scanner = new Scanner(System.in);
 		boolean run = true;
 		while(run){
@@ -67,18 +70,30 @@ public class RunTool {
 				}else{
 					System.out.println("Expert : " + expert.getClass().getName());
 				}
+			}else{
+				System.out.println("Help Menu");
+				System.out.println("\texit = Exit");
+				System.out.println("\tls = List files in current directory");
+				System.out.println("\tcd <directory name>= Change directory");
+				System.out.println("\tfile <file name>= Set the training data");
+				System.out.println("\tagent <random | line | zig | fixed | explorer> = Sets the agent to test against");
+				System.out.println("\tclear = Clears the training data and the agent");
+				System.out.println("\tshow = Displays the training data and agent");
 			}
 			if (!fileName.equals("") && expert != null){
-				run = false;
+				expert.parseFile(fileName, "ToolCasebase");
+				DiscreteRandomAgentRunTool tool = new DiscreteRandomAgentRunTool("ToolCasebase.cb", 7, 1000);
+				tool.setup();
+				tool.runTool();
+				tool.displayToolSummary();
+				
+				fileName = "";
+				expert = null;
 			}
 		}
 		
 		
-		expert.parseFile(fileName, "ToolCasebase");
-		DiscreteRandomAgentRunTool tool = new DiscreteRandomAgentRunTool("ToolCasebase.cb", 7, 1000);
-		tool.setup();
-		tool.runTool();
-		tool.displayToolSummary();
+		
 		
 		scanner.reset();
 		scanner.close();

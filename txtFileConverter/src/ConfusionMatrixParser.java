@@ -3,15 +3,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.TreeMap;
 
 
 public class ConfusionMatrixParser {
 	
 	private String filename;
-	private HashMap<MatrixInfo, Map<String,Map<String,Integer>>> matrixMap;
+	private TreeMap<MatrixInfo, Map<String,Map<String,Integer>>> matrixMap;
 	
 	private Map<String,Map<String,Integer>> currentMatrix;
 	private MatrixInfo currentInfo;
@@ -23,9 +25,26 @@ public class ConfusionMatrixParser {
 	public static final String REASONING_TAG = "Reasoning Method : ";
 	public static final String WEIGHT_TAG = "Weight Function : ";
 	
+	public static void main(String args[]){
+		ConfusionMatrixParser parser = new ConfusionMatrixParser("J:/RESULTS/RESULT/Version 5/Oct18-Seq-NonRandom-NoSmartRandom.txt");
+		//ConfusionMatrixParser parser = new ConfusionMatrixParser("J:/RESULTS/RESULT/Version 5/Oct18-Seq-NonRandom-SmartRandomOnly.txt");
+		parser.parseFile();
+		parser.trimConfusionMatrix();
+		parser.outputResutls();
+	}
+	
+	
 	public ConfusionMatrixParser(String filename){
 		this.filename = filename;
-		this.matrixMap = new HashMap<MatrixInfo, Map<String,Map<String,Integer>>>();
+		Comparator<MatrixInfo> c = new Comparator<MatrixInfo>(){
+
+			@Override
+			public int compare(MatrixInfo arg0, MatrixInfo arg1) {
+				return arg0.hashCode() - arg1.hashCode();
+			}
+			
+		};
+		this.matrixMap = new TreeMap<MatrixInfo, Map<String,Map<String,Integer>>>(c);
 	}
 	
 	public void parseFile(){
@@ -96,10 +115,30 @@ public class ConfusionMatrixParser {
 		return label + "\n" + header + "\n" + s;
 	}
 	
+	public void trimConfusionMatrix(){
+		for (MatrixInfo info : this.matrixMap.keySet()){
+			Map<String,Map<String,Integer>> currentMatrix = this.matrixMap.get(info);
+			HashSet<String> keys = new HashSet<String>();
+			for (String s : currentMatrix.keySet()){
+				int total = 0;
+				for (String m : currentMatrix.get(s).keySet()){
+					total += currentMatrix.get(s).get(m).intValue();
+				}
+				if (total == 0){
+					keys.add(s);
+				}
+			}
+			
+			for (String s : keys){
+				currentMatrix.remove(s);
+			}
+		}
+	}
+	
 	public void outputResutls(){
 		for (MatrixInfo info : this.matrixMap.keySet()){
-			if (info.getWeigth().contains("Gaussian") || info.getK() != 10){
-				continue;
+			if (info.getWeigth().contains("Gaussian") || info.getK() != 4){
+				//continue;
 			}
 			System.out.println(info);
 			StatisticsWrapper wrapper = new StatisticsWrapper(this.matrixMap.get(info));
@@ -139,10 +178,79 @@ public class ConfusionMatrixParser {
 		}
 	}
 	
-	public static void main(String args[]){
-		ConfusionMatrixParser parser = new ConfusionMatrixParser("J:/RESULTS/RESULT/Version 5/kNNBestConfusion.txt");
-		parser.parseFile();
-		parser.outputResutls();
+	enum Method{
+		SEQ,
+		KNN,
+		BEST,
+		EDIT,
+		JACCARD,
+		;
+		public static Method strToMethod(String str){
+			for (Method m : Method.values()){
+				if (str.toLowerCase().equals(m.name().toLowerCase())){
+					return m;
+				}
+			}
+			return null;
+		}
+	}
+	
+	enum Behaviour{
+		SmartRandom("Smart Random"), 
+		SmartStraightLine("Straight Line"), 
+		ZigZag("Zig Zag"), 
+		FixedSequence("Fixed Sequence"), 
+		SmartExplorer("Smart Explorer"),
+		;
+		String name;
+		
+		Behaviour(String name){
+			this.name = name;
+		}
+		
+		public static Behaviour strToBehaviour(String str){
+			for (Behaviour b : Behaviour.values()){
+				if (str.equals(b.name)){
+					return b;
+				}
+			}
+			return null;
+		}
+	}
+	
+	enum Weight{
+		Linear_05("Linear", "-0.5"),
+		Linear_02("Linear", "-0.2"),
+		Linear_01("Linear", "-0.1"),
+		Linear_005("Linear", "0.05"),
+		
+		Decay_10("Decay", "-10.0"),
+		Decay_1("Linear", "-1.0"),
+		Decay_01("Decay", "-0.1"),
+		Decay_001("Decay", "-0.01"),
+		
+		Gaussian_00("Gaussian", "-0.0-0.15"),
+		Gaussian_10("Gaussian", "-1.0-0.15"),
+		Gaussian_20("Gaussian", "-2.0-0.15"),
+		Gaussian_50("Gaussian", "-5.0-0.15"),
+		Gaussian_100("Gaussian", "-10.0-0.15"),
+		;
+		
+		String name;
+		String value;
+		Weight(String name, String value){
+			this.name = name;
+			this.value = value;
+		}
+		
+		public static Weight strToWeight(String str){
+			for (Weight w : Weight.values()){
+				if (str.contains(w.name) && str.endsWith(w.value)){
+					return w;
+				}
+			}
+			return null;
+		}
 	}
 	
 	class MatrixInfo{
@@ -152,7 +260,13 @@ public class ConfusionMatrixParser {
 		private int k;
 		private String weight;
 		
-		public MatrixInfo(){}
+		private Method m;
+		private Behaviour b;
+		private Weight w;
+		
+		public MatrixInfo(){
+			weight = "";
+		}
 		
 		public MatrixInfo(MatrixInfo info){
 			this.method = info.method;
@@ -160,6 +274,10 @@ public class ConfusionMatrixParser {
 			this.isRandom = info.isRandom;
 			this.k = info.k;
 			this.weight = info.weight;
+			
+			this.w = info.w;
+			this.m = info.m;
+			this.b = info.b;
 		}
 		
 		public String getWeigth(){
@@ -168,6 +286,8 @@ public class ConfusionMatrixParser {
 		
 		public void setWeight(String weight){
 			this.weight = weight;
+			
+			this.w = Weight.strToWeight(weight);
 		}
 		
 		public String getMethod() {
@@ -175,6 +295,8 @@ public class ConfusionMatrixParser {
 		}
 		public void setMethod(String method) {
 			this.method = method;
+			
+			this.m = Method.strToMethod(method);
 		}
 		public boolean isRandom() {
 			return isRandom;
@@ -193,11 +315,27 @@ public class ConfusionMatrixParser {
 		}
 		public void setBehaviour(String behaviour) {
 			this.behaviour = behaviour;
+			
+			this.b = Behaviour.strToBehaviour(behaviour);
 		}
 		@Override
 		public int hashCode(){
-			String s = method + isRandom + k + behaviour + weight;
-			return s.hashCode();
+			int s = this.m.ordinal();
+			s *= 10;
+			
+			s += this.b.ordinal();
+			s *= 10;
+			
+			if (this.w != null){
+				s += this.w.ordinal();
+			}
+			s *= 100;
+			
+			s += this.k;
+			s *= 10;
+			
+			s += (this.isRandom) ? 1 : 0;
+			return s;
 		}
 		
 		@Override
